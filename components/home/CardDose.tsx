@@ -7,12 +7,12 @@ type Props = {
   dose: DoseMock;
   acento: string;
   href?: string;
+  onToggle?: () => void;
 };
 
-export default function CardDose({ dose: m, acento, href }: Props) {
+export default function CardDose({ dose: m, acento, href, onToggle }: Props) {
   const content = (
     <>
-      {/* Indicador lateral de status */}
       <div
         style={{
           position: "absolute",
@@ -25,8 +25,6 @@ export default function CardDose({ dose: m, acento, href }: Props) {
           opacity: 0.7,
         }}
       />
-
-      {/* Ícone do remédio */}
       <div
         style={{
           width: 52,
@@ -43,8 +41,6 @@ export default function CardDose({ dose: m, acento, href }: Props) {
       >
         <MedIcon kind={m.kind} size={36} />
       </div>
-
-      {/* Texto */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <span
           style={{
@@ -123,9 +119,9 @@ export default function CardDose({ dose: m, acento, href }: Props) {
         </div>
       )}
 
-      {/* Botão de check */}
       <div style={{ padding: "0 14px 0 0", flexShrink: 0 }}>
         <button
+          onClick={onToggle}
           aria-label={m.tomado ? "Desmarcar" : "Marcar como tomado"}
           style={{
             width: 54,

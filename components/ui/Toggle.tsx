@@ -1,8 +1,10 @@
-type Props = { on?: boolean };
+type Props = { on?: boolean; onClick?: () => void };
 
-export default function Toggle({ on = true }: Props) {
+export default function Toggle({ on = true, onClick }: Props) {
   return (
-    <div
+    <button
+      onClick={onClick}
+      aria-label={on ? "Desativar alarme" : "Ativar alarme"}
       style={{
         width: 52,
         height: 30,
@@ -11,6 +13,9 @@ export default function Toggle({ on = true }: Props) {
         position: "relative",
         flexShrink: 0,
         transition: "background 0.2s",
+        border: "none",
+        cursor: onClick ? "pointer" : "default",
+        padding: 0,
       }}
     >
       <div
@@ -26,6 +31,6 @@ export default function Toggle({ on = true }: Props) {
           transition: "left 0.2s",
         }}
       />
-    </div>
+    </button>
   );
 }

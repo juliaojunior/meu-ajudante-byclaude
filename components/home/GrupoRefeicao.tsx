@@ -2,16 +2,18 @@ import { IcCheck } from "@/components/icons";
 import CardDose from "@/components/home/CardDose";
 import type { GroupMock } from "@/lib/types";
 
-type Props = { group: GroupMock };
+type Props = {
+  group: GroupMock;
+  onToggle?: (remedioId: string, hora: string) => void;
+};
 
-export default function GrupoRefeicao({ group: g }: Props) {
+export default function GrupoRefeicao({ group: g, onToggle }: Props) {
   const allDone = g.items.length > 0 && g.items.every((i) => i.tomado);
   const someDone = g.items.filter((i) => i.tomado).length;
   const plural = g.items.length === 1 ? "remédio" : "remédios";
 
   return (
     <div style={{ marginBottom: 22 }}>
-      {/* Cabeçalho do grupo */}
       <div
         style={{
           display: "flex",
@@ -51,19 +53,11 @@ export default function GrupoRefeicao({ group: g }: Props) {
           >
             {g.label}
           </span>
-          <div
-            style={{
-              fontSize: 12,
-              color: "#57534E",
-              marginTop: 2,
-              fontWeight: 500,
-            }}
-          >
+          <div style={{ fontSize: 12, color: "#57534E", marginTop: 2, fontWeight: 500 }}>
             {g.items.length} {plural}
             {someDone > 0 && !allDone && (
               <>
-                {" "}
-                ·{" "}
+                {" "}·{" "}
                 <span style={{ color: "#4D7C0F", fontWeight: 700 }}>
                   {someDone} tomado
                 </span>
@@ -96,10 +90,15 @@ export default function GrupoRefeicao({ group: g }: Props) {
         )}
       </div>
 
-      {/* Cards de dose */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {g.items.map((m) => (
-          <CardDose key={m.id} dose={m} acento={g.acento} href={`/remedio/${m.id}`} />
+          <CardDose
+            key={`${m.remedioId}-${m.h}`}
+            dose={m}
+            acento={g.acento}
+            href={`/remedio/${m.remedioId}`}
+            onToggle={onToggle ? () => onToggle(m.remedioId, m.h) : undefined}
+          />
         ))}
       </div>
     </div>

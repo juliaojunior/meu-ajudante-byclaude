@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import PhoneShell from "@/components/ui/PhoneShell";
 import StatusBar from "@/components/ui/StatusBar";
@@ -5,40 +7,83 @@ import HeroProximo from "@/components/home/HeroProximo";
 import ProgressoDia from "@/components/home/ProgressoDia";
 import GrupoRefeicao from "@/components/home/GrupoRefeicao";
 import { IcUser, IcCalendar, IcPlus } from "@/components/icons";
-import { IcCoffee, IcUtensils, IcMoon } from "@/components/icons";
-import type { DoseMock, GroupMock } from "@/lib/types";
+import { IcCoffee, IcUtensils, IcSun, IcMoon } from "@/components/icons";
+import { useRemedios } from "@/hooks/useRemedios";
+import { useRelogio } from "@/hooks/useRelogio";
+import { dataHoje, saudacao, diaFormatado, tempoRestante } from "@/lib/time";
+import { calcularStreakGlobal } from "@/lib/streak";
+import type { DoseMock, GroupMock, Periodo } from "@/lib/types";
 
-const doses: DoseMock[] = [
-  { id: 1, nome: "Losartana",  dose: "50 mg · 1 comp.",  h: "07:30", periodo: "manha",  tomado: true,  kind: "tab1", quando: "em jejum"       },
-  { id: 2, nome: "Omeprazol", dose: "20 mg · 1 cáps.",  h: "07:30", periodo: "manha",  tomado: true,  kind: "cap1", quando: "antes de comer"  },
-  { id: 3, nome: "AAS",       dose: "100 mg · 1 comp.", h: "12:30", periodo: "almoco", tomado: false, kind: "tab2", quando: "após almoçar"    },
-  { id: 4, nome: "Metformina",dose: "850 mg · 1 comp.", h: "19:00", periodo: "noite",  tomado: false, kind: "oval", quando: "com o jantar"    },
-  { id: 5, nome: "Atenolol",  dose: "25 mg · 1 cáps.", h: "22:00", periodo: "noite",  tomado: false, kind: "cap2", quando: "antes de dormir" },
+const GRUPOS_CONFIG: {
+  key: Periodo;
+  label: string;
+  acento: string;
+  Icon: (p: { size?: number; stroke?: number }) => React.ReactNode;
+}[] = [
+  { key: "manha",  label: "Café da manhã",  acento: "#D97706", Icon: IcCoffee   },
+  { key: "almoco", label: "Almoço",          acento: "#C2410C", Icon: IcUtensils },
+  { key: "tarde",  label: "Tarde",           acento: "#B45309", Icon: IcSun      },
+  { key: "noite",  label: "Jantar & noite",  acento: "#6D8B47", Icon: IcMoon     },
 ];
-
-const groups: GroupMock[] = [
-  { key: "manha",  label: "Café da manhã", h: "07:30", acento: "#D97706", Icon: IcCoffee,   items: doses.filter((d) => d.periodo === "manha")  },
-  { key: "almoco", label: "Almoço",         h: "12:30", acento: "#C2410C", Icon: IcUtensils, items: doses.filter((d) => d.periodo === "almoco") },
-  { key: "noite",  label: "Jantar & noite", h: "19:00", acento: "#6D8B47", Icon: IcMoon,     items: doses.filter((d) => d.periodo === "noite")  },
-];
-
-const nextDose = doses.find((d) => !d.tomado);
-const proxGrupo = groups.find((g) => g.items.some((i) => !i.tomado));
 
 export default function Home() {
+  const { remedios, marcar, desmarcar } = useRemedios();
+  const horaDisplay = useRelogio();
+  const hoje = dataHoje();
+
+  const doses: DoseMock[] = [];
+  let counter = 0;
+  for (const rem of remedios) {
+    for (const h of rem.horarios) {
+      const tomado = rem.tomadas.some((t) => t.data === hoje && t.horario === h.hora);
+      doses.push({
+        id: counter++,
+        remedioId: rem.id,
+        nome: rem.apelido || rem.nome,
+        dose: rem.dose,
+        h: h.hora,
+        periodo: h.periodo,
+        tomado,
+        kind: rem.kind,
+        quando: h.refeicao,
+      });
+    }
+  }
+  doses.sort((a, b) => a.h.localeCompare(b.h));
+
+  const groups: GroupMock[] = GRUPOS_CONFIG.map((cfg) => ({
+    key: cfg.key,
+    label: cfg.label,
+    h: doses.find((d) => d.periodo === cfg.key)?.h ?? "",
+    acento: cfg.acento,
+    Icon: cfg.Icon,
+    items: doses.filter((d) => d.periodo === cfg.key),
+  })).filter((g) => g.items.length > 0);
+
+  const nextDose = doses.find((d) => !d.tomado);
+  const proxGrupo = nextDose
+    ? groups.find((g) => g.items.some((i) => i.remedioId === nextDose.remedioId && i.h === nextDose.h))
+    : undefined;
+  const streak = calcularStreakGlobal(remedios);
+
+  function handleToggle(remedioId: string, hora: string) {
+    const dose = doses.find((d) => d.remedioId === remedioId && d.h === hora);
+    if (!dose) return;
+    if (dose.tomado) {
+      desmarcar(remedioId, hora, hoje);
+    } else {
+      marcar(remedioId, hora, hoje);
+    }
+  }
+
+  const tudoTomado = doses.length > 0 && doses.every((d) => d.tomado);
+
   return (
     <PhoneShell>
-      <StatusBar time="07:48" />
+      <StatusBar time={horaDisplay || "—"} />
 
-      {/* Cabeçalho editorial */}
       <div style={{ padding: "10px 24px 16px", flexShrink: 0 }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
             <div
               style={{
@@ -49,11 +94,9 @@ export default function Home() {
                 letterSpacing: 2,
               }}
             >
-              Terça · 21 Abr
+              {diaFormatado()}
             </div>
-            <h1
-              style={{ margin: "10px 0 0", lineHeight: 0.98, letterSpacing: -1.2 }}
-            >
+            <h1 style={{ margin: "10px 0 0", lineHeight: 0.98, letterSpacing: -1.2 }}>
               <span
                 style={{
                   fontFamily: "var(--font-serif)",
@@ -64,7 +107,7 @@ export default function Home() {
                   display: "block",
                 }}
               >
-                Bom dia,
+                {saudacao()}
               </span>
               <span
                 style={{
@@ -76,12 +119,10 @@ export default function Home() {
                   marginTop: 2,
                 }}
               >
-                Dona Neusa.
+                {remedios.length > 0 ? "Seus remédios." : "Bem-vindo."}
               </span>
             </h1>
           </div>
-
-          {/* Avatar / perfil */}
           <button
             style={{
               width: 48,
@@ -94,40 +135,24 @@ export default function Home() {
               justifyContent: "center",
               color: "#1C1917",
               cursor: "pointer",
-              position: "relative",
               flexShrink: 0,
             }}
           >
             <IcUser size={22} stroke={2} />
-            <div
-              style={{
-                position: "absolute",
-                top: 6,
-                right: 6,
-                width: 10,
-                height: 10,
-                borderRadius: 5,
-                background: "#C2410C",
-                border: "2px solid #FFFBF3",
-              }}
-            />
           </button>
         </div>
       </div>
 
-      {/* Hero: próximo remédio */}
       {nextDose && proxGrupo && (
         <HeroProximo
           dose={nextDose}
           labelGrupo={proxGrupo.label}
-          tempoRestante="em 4h42min"
+          tempoRestante={tempoRestante(nextDose.h)}
         />
       )}
 
-      {/* Progresso do dia */}
-      <ProgressoDia doses={doses} streak={21} />
+      {doses.length > 0 && <ProgressoDia doses={doses} streak={streak} />}
 
-      {/* Lista de grupos — área scrollável */}
       <div
         style={{
           flex: 1,
@@ -136,34 +161,80 @@ export default function Home() {
           WebkitOverflowScrolling: "touch",
         }}
       >
-        {groups.map((g) => (
-          <GrupoRefeicao key={g.key} group={g} />
-        ))}
-
-        {/* Mensagem de fim do dia */}
-        <div
-          style={{
-            marginTop: 6,
-            padding: "16px 18px",
-            borderRadius: 20,
-            border: "1.5px dashed #D6C6AA",
-            textAlign: "center",
-          }}
-        >
+        {remedios.length === 0 ? (
+          /* Estado vazio */
           <div
             style={{
-              fontSize: 13,
-              color: "#57534E",
-              fontStyle: "italic",
-              fontFamily: "var(--font-serif)",
+              padding: "40px 24px",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 12,
             }}
           >
-            Terminou o dia. Boa noite, Dona Neusa. 🌙
+            <div
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: 24,
+                background: "#FFF1E7",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 36,
+                marginBottom: 4,
+              }}
+            >
+              💊
+            </div>
+            <span
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: 22,
+                fontWeight: 600,
+                color: "#1C1917",
+                letterSpacing: -0.3,
+              }}
+            >
+              Nenhum remédio ainda
+            </span>
+            <p style={{ fontSize: 14, color: "#57534E", margin: 0, lineHeight: 1.5 }}>
+              Toque em "Adicionar remédio" abaixo para cadastrar o primeiro.
+            </p>
           </div>
-        </div>
+        ) : (
+          <>
+            {groups.map((g) => (
+              <GrupoRefeicao key={g.key} group={g} onToggle={handleToggle} />
+            ))}
+
+            {tudoTomado && (
+              <div
+                style={{
+                  marginTop: 6,
+                  padding: "16px 18px",
+                  borderRadius: 20,
+                  border: "1.5px dashed #D6C6AA",
+                  textAlign: "center",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: "#57534E",
+                    fontStyle: "italic",
+                    fontFamily: "var(--font-serif)",
+                  }}
+                >
+                  Tudo tomado hoje. Muito bem! 🌟
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
-      {/* Barra inferior flutuante */}
       <div
         style={{
           position: "absolute",
@@ -212,8 +283,7 @@ export default function Home() {
             alignItems: "center",
             justifyContent: "center",
             gap: 10,
-            boxShadow:
-              "0 10px 24px rgba(194,65,12,0.4), inset 0 1px 0 rgba(255,255,255,0.15)",
+            boxShadow: "0 10px 24px rgba(194,65,12,0.4), inset 0 1px 0 rgba(255,255,255,0.15)",
             pointerEvents: "auto",
             textDecoration: "none",
           }}

@@ -29,6 +29,7 @@ export type Remedio = {
 
 export type DoseMock = {
   id: number;
+  remedioId: string;
   nome: string;
   dose: string;
   h: string;
