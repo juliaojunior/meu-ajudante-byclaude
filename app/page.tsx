@@ -10,6 +10,7 @@ import { IcUser, IcCalendar, IcPlus } from "@/components/icons";
 import { IcCoffee, IcUtensils, IcSun, IcMoon } from "@/components/icons";
 import { useRemedios } from "@/hooks/useRemedios";
 import { useRelogio } from "@/hooks/useRelogio";
+import { useAlarme } from "@/hooks/useAlarme";
 import { dataHoje, saudacao, diaFormatado, tempoRestante } from "@/lib/time";
 import { calcularStreakGlobal } from "@/lib/streak";
 import type { DoseMock, GroupMock, Periodo } from "@/lib/types";
@@ -29,6 +30,7 @@ const GRUPOS_CONFIG: {
 export default function Home() {
   const { remedios, marcar, desmarcar } = useRemedios();
   const horaDisplay = useRelogio();
+  useAlarme();
   const hoje = dataHoje();
 
   const doses: DoseMock[] = [];

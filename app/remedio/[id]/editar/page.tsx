@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import PhoneShell from "@/components/ui/PhoneShell";
@@ -8,8 +8,10 @@ import StatusBar from "@/components/ui/StatusBar";
 import PageHeader from "@/components/ui/PageHeader";
 import FormField from "@/components/ui/FormField";
 import Toggle from "@/components/ui/Toggle";
-import { IcCoffee, IcUtensils, IcSun, IcMoon, IcX, IcPlus, IcBell } from "@/components/icons";
+import { IcCoffee, IcUtensils, IcSun, IcMoon, IcX, IcPlus, IcBell, IcCamera } from "@/components/icons";
 import { getRemedio, saveRemedio } from "@/lib/storage";
+import { salvarFoto } from "@/lib/fotos";
+import { useFoto } from "@/hooks/useFoto";
 import { periodoDeHora } from "@/lib/time";
 import type { Horario, MedKind, Remedio } from "@/lib/types";
 
@@ -42,6 +44,18 @@ export default function EditarPage() {
   const [alarme, setAlarme] = useState(true);
   const [horarios, setHorarios] = useState<Horario[]>([]);
   const [erro, setErro] = useState("");
+  const [fotoBlob, setFotoBlob] = useState<Blob | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const inputFotoRef = useRef<HTMLInputElement>(null);
+  const fotoExistente = useFoto(remedio?.fotoId);
+
+  function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (fotoPreview) URL.revokeObjectURL(fotoPreview);
+    setFotoBlob(file);
+    setFotoPreview(URL.createObjectURL(file));
+  }
 
   useEffect(() => {
     const r = getRemedio(id);
@@ -83,11 +97,9 @@ export default function EditarPage() {
     setErro("");
     if (!remedio) return;
 
+    const novaFotoId = fotoBlob ? remedio.id : remedio.fotoId;
     saveRemedio({
       ...remedio,
-      id: remedio.id,
-      tomadas: remedio.tomadas,
-      criadoEm: remedio.criadoEm,
       nome: nome.trim(),
       apelido: apelido.trim() || undefined,
       dose: dose.trim(),
@@ -95,7 +107,9 @@ export default function EditarPage() {
       kind,
       alarmeAtivo: alarme,
       horarios: [...horarios].sort((a, b) => a.hora.localeCompare(b.hora)),
+      fotoId: novaFotoId,
     });
+    if (fotoBlob) salvarFoto(remedio.id, fotoBlob);
     router.push(`/remedio/${id}`);
   }
 
@@ -112,7 +126,66 @@ export default function EditarPage() {
           WebkitOverflowScrolling: "touch",
         }}
       >
-        <div style={{ marginTop: 8 }}>
+        {/* Foto */}
+        <input
+          ref={inputFotoRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFotoChange}
+          style={{ display: "none" }}
+        />
+        <div
+          style={{
+            background: "linear-gradient(135deg, #FFF1E7, #FFF8F2)",
+            borderRadius: 28, padding: 16, border: "1px solid #EADFCE",
+            display: "flex", alignItems: "center", gap: 14,
+          }}
+        >
+          {(fotoPreview || fotoExistente) ? (
+            <img
+              src={fotoPreview ?? fotoExistente!}
+              alt="Foto do remédio"
+              style={{ width: 80, height: 80, borderRadius: 18, objectFit: "cover", flexShrink: 0 }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 80, height: 80, borderRadius: 18, background: "#fff",
+                border: "1.5px dashed rgba(194,65,12,0.4)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "#C2410C", flexShrink: 0,
+              }}
+            >
+              <IcCamera size={32} stroke={2.2} />
+            </div>
+          )}
+          <div style={{ flex: 1 }}>
+            <span
+              style={{
+                fontFamily: "var(--font-serif)", fontSize: 17, fontWeight: 600,
+                color: "#1C1917", display: "block",
+              }}
+            >
+              {(fotoPreview || fotoExistente) ? "Foto da caixa" : "Sem foto ainda"}
+            </span>
+            <button
+              onClick={() => inputFotoRef.current?.click()}
+              style={{
+                marginTop: 10, padding: "8px 16px", borderRadius: 20,
+                border: "none", background: "#C2410C", color: "#fff",
+                fontWeight: 700, fontSize: 13, cursor: "pointer",
+                fontFamily: "var(--font-sans)",
+                display: "flex", alignItems: "center", gap: 6,
+              }}
+            >
+              <IcCamera size={15} stroke={2.4} />
+              {(fotoPreview || fotoExistente) ? "Trocar foto" : "Tirar foto"}
+            </button>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 16 }}>
           <FormField label="Nome" value={nome} onChange={setNome} placeholder="Nome do remédio" big />
           <FormField label="Dose" value={dose} onChange={setDose} placeholder="Ex: 50 mg · 1 comp." style={{ marginTop: 14 }} />
           <FormField label="Também conhecido como" value={apelido} onChange={setApelido} placeholder="Opcional" style={{ marginTop: 14 }} />

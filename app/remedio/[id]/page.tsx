@@ -8,6 +8,7 @@ import StatusBar from "@/components/ui/StatusBar";
 import PageHeader from "@/components/ui/PageHeader";
 import { IcCheck, IcHeart, IcEdit, IcTrash, IcCoffee, IcUtensils, IcSun, IcMoon } from "@/components/icons";
 import { getRemedio } from "@/lib/storage";
+import { useFoto } from "@/hooks/useFoto";
 import { dataHoje, tempoRestante, horaAtual } from "@/lib/time";
 import { calcularStreak } from "@/lib/streak";
 import type { Remedio, Periodo } from "@/lib/types";
@@ -35,6 +36,7 @@ export default function DetalhesPage() {
   const hoje = dataHoje();
   const agora = horaAtual();
   const streak = calcularStreak(remedio);
+  const fotoUrl = useFoto(remedio.fotoId);
 
   return (
     <PhoneShell>
@@ -75,25 +77,42 @@ export default function DetalhesPage() {
             }}
           />
           <div style={{ position: "relative" }}>
-            {remedio.para && (
-              <div
-                style={{
-                  fontSize: 11, fontWeight: 700, color: "#C2410C",
-                  textTransform: "uppercase", letterSpacing: 2,
-                }}
-              >
-                {remedio.para}
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+              {fotoUrl && (
+                <img
+                  src={fotoUrl}
+                  alt="Foto do remédio"
+                  style={{
+                    width: 80, height: 80, borderRadius: 18,
+                    objectFit: "cover", flexShrink: 0,
+                    border: "1px solid #EADFCE",
+                    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
+                  }}
+                />
+              )}
+              <div style={{ flex: 1 }}>
+                {remedio.para && (
+                  <div
+                    style={{
+                      fontSize: 11, fontWeight: 700, color: "#C2410C",
+                      textTransform: "uppercase", letterSpacing: 2,
+                    }}
+                  >
+                    {remedio.para}
+                  </div>
+                )}
+                <span
+                  style={{
+                    fontFamily: "var(--font-serif)",
+                    fontSize: fotoUrl ? 30 : 38,
+                    fontWeight: 600, color: "#1C1917",
+                    display: "block", letterSpacing: -1, marginTop: 4, lineHeight: 1,
+                  }}
+                >
+                  {remedio.nome}
+                </span>
               </div>
-            )}
-            <span
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: 38, fontWeight: 600, color: "#1C1917",
-                display: "block", letterSpacing: -1, marginTop: 4, lineHeight: 1,
-              }}
-            >
-              {remedio.nome}
-            </span>
+            </div>
             {remedio.apelido && (
               <div
                 style={{

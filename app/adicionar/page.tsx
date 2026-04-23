@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PhoneShell from "@/components/ui/PhoneShell";
@@ -8,8 +8,9 @@ import StatusBar from "@/components/ui/StatusBar";
 import PageHeader from "@/components/ui/PageHeader";
 import FormField from "@/components/ui/FormField";
 import Toggle from "@/components/ui/Toggle";
-import { IcCoffee, IcUtensils, IcSun, IcMoon, IcX, IcPlus, IcBell } from "@/components/icons";
+import { IcCoffee, IcUtensils, IcSun, IcMoon, IcX, IcPlus, IcBell, IcCamera } from "@/components/icons";
 import { saveRemedio, novoId } from "@/lib/storage";
+import { salvarFoto } from "@/lib/fotos";
 import { periodoDeHora } from "@/lib/time";
 import type { Horario, MedKind } from "@/lib/types";
 
@@ -40,6 +41,17 @@ export default function AdicionarPage() {
   const [alarme, setAlarme] = useState(true);
   const [horarios, setHorarios] = useState<Horario[]>([]);
   const [erro, setErro] = useState("");
+  const [fotoBlob, setFotoBlob] = useState<Blob | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const inputFotoRef = useRef<HTMLInputElement>(null);
+
+  function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (fotoPreview) URL.revokeObjectURL(fotoPreview);
+    setFotoBlob(file);
+    setFotoPreview(URL.createObjectURL(file));
+  }
 
   function addHorario(opcao: (typeof OPCOES_REFEICAO)[0]) {
     const jaExiste = horarios.some((h) => h.refeicao === opcao.refeicao);
@@ -71,8 +83,9 @@ export default function AdicionarPage() {
     if (horarios.length === 0) { setErro("Adicione ao menos um horário."); return; }
     setErro("");
 
+    const id = novoId();
     saveRemedio({
-      id: novoId(),
+      id,
       nome: nome.trim(),
       apelido: apelido.trim() || undefined,
       dose: dose.trim(),
@@ -82,7 +95,9 @@ export default function AdicionarPage() {
       horarios: [...horarios].sort((a, b) => a.hora.localeCompare(b.hora)),
       tomadas: [],
       criadoEm: new Date().toISOString(),
+      fotoId: fotoBlob ? id : undefined,
     });
+    if (fotoBlob) salvarFoto(id, fotoBlob);
     router.push("/");
   }
 
@@ -99,8 +114,97 @@ export default function AdicionarPage() {
           WebkitOverflowScrolling: "touch",
         }}
       >
+        {/* Foto */}
+        <input
+          ref={inputFotoRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFotoChange}
+          style={{ display: "none" }}
+        />
+        <div
+          style={{
+            background: "linear-gradient(135deg, #FFF1E7, #FFF8F2)",
+            borderRadius: 28,
+            padding: 16,
+            border: "1px solid #EADFCE",
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+          }}
+        >
+          {fotoPreview ? (
+            <img
+              src={fotoPreview}
+              alt="Foto do remédio"
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: 18,
+                objectFit: "cover",
+                flexShrink: 0,
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: 18,
+                background: "#fff",
+                border: "1.5px dashed rgba(194,65,12,0.4)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#C2410C",
+                flexShrink: 0,
+              }}
+            >
+              <IcCamera size={32} stroke={2.2} />
+            </div>
+          )}
+          <div style={{ flex: 1 }}>
+            <span
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: 17,
+                fontWeight: 600,
+                color: "#1C1917",
+                display: "block",
+              }}
+            >
+              {fotoPreview ? "Foto capturada" : "Foto da caixa"}
+            </span>
+            <div style={{ fontSize: 13, color: "#57534E", marginTop: 2 }}>
+              {fotoPreview ? "Toque para trocar" : "Ajuda a reconhecer o remédio"}
+            </div>
+            <button
+              onClick={() => inputFotoRef.current?.click()}
+              style={{
+                marginTop: 10,
+                padding: "8px 16px",
+                borderRadius: 20,
+                border: "none",
+                background: "#C2410C",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 13,
+                cursor: "pointer",
+                fontFamily: "var(--font-sans)",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <IcCamera size={15} stroke={2.4} />
+              {fotoPreview ? "Trocar foto" : "Abrir câmera"}
+            </button>
+          </div>
+        </div>
+
         {/* Campos principais */}
-        <div style={{ marginTop: 8 }}>
+        <div style={{ marginTop: 16 }}>
           <FormField
             label="Nome"
             value={nome}

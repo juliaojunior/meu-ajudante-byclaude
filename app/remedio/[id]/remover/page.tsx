@@ -7,6 +7,7 @@ import PhoneShell from "@/components/ui/PhoneShell";
 import StatusBar from "@/components/ui/StatusBar";
 import { IcAlert } from "@/components/icons";
 import { getRemedio, deleteRemedio } from "@/lib/storage";
+import { deletarFoto } from "@/lib/fotos";
 import { calcularStreak } from "@/lib/streak";
 import type { Remedio } from "@/lib/types";
 
@@ -26,6 +27,7 @@ export default function RemoverPage() {
   const streak = calcularStreak(remedio);
 
   function confirmarRemocao() {
+    if (remedio?.fotoId) deletarFoto(remedio.fotoId);
     deleteRemedio(id);
     router.replace("/");
   }
