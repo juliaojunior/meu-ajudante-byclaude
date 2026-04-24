@@ -45,6 +45,13 @@ export function useAlarme() {
 
     verificar();
     const id = setInterval(verificar, 60_000);
-    return () => clearInterval(id);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") verificar();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, []);
 }

@@ -7,9 +7,17 @@ export function useRelogio(): string {
   const [hora, setHora] = useState("");
 
   useEffect(() => {
-    setHora(horaAtual());
-    const id = setInterval(() => setHora(horaAtual()), 60_000);
-    return () => clearInterval(id);
+    const atualizar = () => setHora(horaAtual());
+    atualizar();
+    const id = setInterval(atualizar, 60_000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") atualizar();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, []);
 
   return hora;
