@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import PhoneShell from "@/components/ui/PhoneShell";
-import StatusBar from "@/components/ui/StatusBar";
 import PageHeader from "@/components/ui/PageHeader";
 import FormField from "@/components/ui/FormField";
 import Toggle from "@/components/ui/Toggle";
@@ -115,7 +114,6 @@ export default function EditarPage() {
 
   return (
     <PhoneShell>
-      <StatusBar />
       <PageHeader backHref={`/remedio/${id}`} label="Editando" title={remedio.nome} />
 
       <div

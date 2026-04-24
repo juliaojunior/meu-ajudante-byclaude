@@ -4,7 +4,6 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PhoneShell from "@/components/ui/PhoneShell";
-import StatusBar from "@/components/ui/StatusBar";
 import PageHeader from "@/components/ui/PageHeader";
 import FormField from "@/components/ui/FormField";
 import Toggle from "@/components/ui/Toggle";
@@ -103,7 +102,6 @@ export default function AdicionarPage() {
 
   return (
     <PhoneShell>
-      <StatusBar />
       <PageHeader backHref="/" label="Cadastro" title="Novo remédio" />
 
       <div

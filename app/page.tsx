@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import PhoneShell from "@/components/ui/PhoneShell";
-import StatusBar from "@/components/ui/StatusBar";
 import HeroProximo from "@/components/home/HeroProximo";
 import ProgressoDia from "@/components/home/ProgressoDia";
 import GrupoRefeicao from "@/components/home/GrupoRefeicao";
@@ -86,7 +85,6 @@ export default function Home() {
 
   return (
     <PhoneShell>
-      <StatusBar time={horaDisplay || "—"} />
 
       <div style={{ padding: "10px 24px 16px", flexShrink: 0 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>

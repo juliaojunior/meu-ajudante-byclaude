@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import PhoneShell from "@/components/ui/PhoneShell";
-import StatusBar from "@/components/ui/StatusBar";
 import PageHeader from "@/components/ui/PageHeader";
 import { IcCheck, IcHeart, IcEdit, IcTrash, IcCoffee, IcUtensils, IcSun, IcMoon } from "@/components/icons";
 import { getRemedio } from "@/lib/storage";
@@ -41,7 +40,6 @@ export default function DetalhesPage() {
 
   return (
     <PhoneShell>
-      <StatusBar />
       <PageHeader backHref="/" label="Ficha do remédio" />
 
       <div

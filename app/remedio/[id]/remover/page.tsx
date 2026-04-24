@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import PhoneShell from "@/components/ui/PhoneShell";
-import StatusBar from "@/components/ui/StatusBar";
 import { IcAlert } from "@/components/icons";
 import { getRemedio, deleteRemedio } from "@/lib/storage";
 import { deletarFoto } from "@/lib/fotos";
@@ -34,7 +33,6 @@ export default function RemoverPage() {
 
   return (
     <PhoneShell>
-      <StatusBar />
 
       {/* Fundo simulado */}
       <div
