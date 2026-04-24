@@ -31,12 +31,13 @@ export default function DetalhesPage() {
     setRemedio(r);
   }, [id, router]);
 
+  const fotoUrl = useFoto(remedio?.fotoId);
+
   if (!remedio) return null;
 
   const hoje = dataHoje();
   const agora = horaAtual();
   const streak = calcularStreak(remedio);
-  const fotoUrl = useFoto(remedio.fotoId);
 
   return (
     <PhoneShell>

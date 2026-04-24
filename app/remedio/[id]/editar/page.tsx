@@ -90,7 +90,7 @@ export default function EditarPage() {
     );
   }
 
-  function salvar() {
+  async function salvar() {
     if (!nome.trim()) { setErro("Informe o nome do remédio."); return; }
     if (!dose.trim()) { setErro("Informe a dose."); return; }
     if (horarios.length === 0) { setErro("Adicione ao menos um horário."); return; }
@@ -109,7 +109,7 @@ export default function EditarPage() {
       horarios: [...horarios].sort((a, b) => a.hora.localeCompare(b.hora)),
       fotoId: novaFotoId,
     });
-    if (fotoBlob) salvarFoto(remedio.id, fotoBlob);
+    if (fotoBlob) await salvarFoto(remedio.id, fotoBlob);
     router.push(`/remedio/${id}`);
   }
 
