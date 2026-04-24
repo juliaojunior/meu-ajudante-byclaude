@@ -36,3 +36,60 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ── Animações ─────────────────────────────── */
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1;   transform: scale(1);   }
+  50%       { opacity: 0.5; transform: scale(1.5); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.35s ease both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.25s ease both;
+}
+
+.dot-pulse {
+  animation: pulse-dot 2.5s ease-in-out infinite;
+}
+
+/* Feedback tátil do botão de check */
+.check-btn {
+  transition: transform 0.12s ease, background 0.2s ease,
+              box-shadow 0.2s ease;
+}
+.check-btn:active {
+  transform: scale(0.86) !important;
+}
+
+/* Transição nas barras de progresso */
+.progress-seg {
+  transition: background 0.4s ease;
+}
+
+/* ── Acessibilidade ────────────────────────── */
+
+:focus-visible {
+  outline: 3px solid #C2410C;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Remove outline nativo nos botões com estilo próprio */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+}

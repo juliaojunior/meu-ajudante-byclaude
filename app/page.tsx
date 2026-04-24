@@ -6,13 +6,15 @@ import StatusBar from "@/components/ui/StatusBar";
 import HeroProximo from "@/components/home/HeroProximo";
 import ProgressoDia from "@/components/home/ProgressoDia";
 import GrupoRefeicao from "@/components/home/GrupoRefeicao";
-import { IcUser, IcCalendar, IcPlus } from "@/components/icons";
+import { IcCalendar, IcPlus } from "@/components/icons";
 import { IcCoffee, IcUtensils, IcSun, IcMoon } from "@/components/icons";
 import { useRemedios } from "@/hooks/useRemedios";
 import { useRelogio } from "@/hooks/useRelogio";
 import { useAlarme } from "@/hooks/useAlarme";
 import { dataHoje, saudacao, diaFormatado, tempoRestante } from "@/lib/time";
 import { calcularStreakGlobal } from "@/lib/streak";
+import { useTextScale } from "@/contexts/TextScaleProvider";
+import { toggleTextoGrande } from "@/lib/preferencias";
 import type { DoseMock, GroupMock, Periodo } from "@/lib/types";
 
 const GRUPOS_CONFIG: {
@@ -31,6 +33,8 @@ export default function Home() {
   const { remedios, marcar, desmarcar } = useRemedios();
   const horaDisplay = useRelogio();
   useAlarme();
+  const s = useTextScale();
+  const grande = s > 1;
   const hoje = dataHoje();
 
   const doses: DoseMock[] = [];
@@ -102,7 +106,7 @@ export default function Home() {
               <span
                 style={{
                   fontFamily: "var(--font-serif)",
-                  fontSize: 38,
+                  fontSize: Math.round(38 * s),
                   fontWeight: 400,
                   fontStyle: "italic",
                   color: "#C2410C",
@@ -114,7 +118,7 @@ export default function Home() {
               <span
                 style={{
                   fontFamily: "var(--font-serif)",
-                  fontSize: 38,
+                  fontSize: Math.round(38 * s),
                   fontWeight: 600,
                   color: "#1C1917",
                   display: "block",
@@ -126,21 +130,27 @@ export default function Home() {
             </h1>
           </div>
           <button
+            onClick={toggleTextoGrande}
+            aria-label={grande ? "Diminuir texto" : "Aumentar texto"}
+            aria-pressed={grande}
             style={{
               width: 48,
               height: 48,
               borderRadius: 24,
-              background: "#FFFBF3",
-              border: "1px solid #EADFCE",
+              background: grande ? "#FFF1E7" : "#FFFBF3",
+              border: `1.5px solid ${grande ? "#C2410C" : "#EADFCE"}`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#1C1917",
+              color: grande ? "#C2410C" : "#1C1917",
               cursor: "pointer",
               flexShrink: 0,
+              fontFamily: "var(--font-serif)",
+              fontSize: 18,
+              fontWeight: 700,
             }}
           >
-            <IcUser size={22} stroke={2} />
+            Aa
           </button>
         </div>
       </div>
@@ -156,6 +166,7 @@ export default function Home() {
       {doses.length > 0 && <ProgressoDia doses={doses} streak={streak} />}
 
       <div
+        role="main"
         style={{
           flex: 1,
           overflowY: "auto",
@@ -253,6 +264,7 @@ export default function Home() {
         }}
       >
         <button
+          aria-label="Ver calendário"
           style={{
             width: 56,
             height: 56,

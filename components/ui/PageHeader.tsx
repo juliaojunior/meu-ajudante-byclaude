@@ -20,6 +20,7 @@ export default function PageHeader({ backHref, label, title }: Props) {
     >
       <Link
         href={backHref}
+        aria-label="Voltar"
         style={{
           width: 44,
           height: 44,

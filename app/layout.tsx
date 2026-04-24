@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import ServiceWorkerRegister from "@/components/ui/ServiceWorkerRegister";
+import TextScaleProvider from "@/contexts/TextScaleProvider";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -43,7 +44,9 @@ export default function RootLayout({
       className={`${fraunces.variable} ${plusJakartaSans.variable} h-full`}
     >
       <body className="h-full">
-        {children}
+        <TextScaleProvider>
+          {children}
+        </TextScaleProvider>
         <ServiceWorkerRegister />
       </body>
     </html>

@@ -1,3 +1,6 @@
+"use client";
+
+import { useTextScale } from "@/contexts/TextScaleProvider";
 import type { DoseMock } from "@/lib/types";
 
 type Props = {
@@ -6,6 +9,7 @@ type Props = {
 };
 
 export default function ProgressoDia({ doses, streak }: Props) {
+  const s = useTextScale();
   const done = doses.filter((d) => d.tomado).length;
 
   return (
@@ -19,28 +23,34 @@ export default function ProgressoDia({ doses, streak }: Props) {
         }}
       >
         <div
-          style={{ fontSize: 13, fontWeight: 700, color: "#57534E", letterSpacing: 0.3 }}
+          aria-live="polite"
+          aria-atomic="true"
+          style={{ fontSize: Math.round(13 * s), fontWeight: 700, color: "#57534E", letterSpacing: 0.3 }}
         >
           <span style={{ color: "#C2410C", fontWeight: 800 }}>{done}</span> de{" "}
           {doses.length} tomados hoje
         </div>
-        <div
-          style={{
-            fontSize: 12,
-            color: "#57534E",
-            fontVariantNumeric: "tabular-nums",
-          }}
-        >
-          sequência{" "}
-          <strong style={{ color: "#1C1917" }}>{streak} dias</strong>
-        </div>
+        {streak > 0 && (
+          <div style={{ fontSize: Math.round(12 * s), color: "#57534E", fontVariantNumeric: "tabular-nums" }}>
+            sequência{" "}
+            <strong style={{ color: "#1C1917" }}>{streak} dias</strong>
+          </div>
+        )}
       </div>
 
       {/* Barra segmentada */}
-      <div style={{ display: "flex", gap: 5 }}>
+      <div
+        role="progressbar"
+        aria-valuenow={done}
+        aria-valuemin={0}
+        aria-valuemax={doses.length}
+        aria-label={`${done} de ${doses.length} remédios tomados`}
+        style={{ display: "flex", gap: 5 }}
+      >
         {doses.map((d) => (
           <div
-            key={d.id}
+            key={`${d.remedioId}-${d.h}`}
+            className="progress-seg"
             style={{
               flex: 1,
               height: 8,
