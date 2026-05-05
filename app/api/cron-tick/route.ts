@@ -66,7 +66,7 @@ export async function POST(request: Request): Promise<Response> {
         };
 
         const result = await sendPush(subscription, payload);
-        processed += 1;
+        if (result.ok) processed += 1;
 
         if (result.gone) {
           await deleteSubscription(userId);

@@ -39,6 +39,7 @@ export async function sendPush(
       typeof err === "object" && err !== null && "statusCode" in err
         ? (err as { statusCode?: number }).statusCode
         : undefined;
+    console.error("[sendPush] error status=%s err=%s", status, String(err));
     if (status === 404 || status === 410) {
       return { ok: false, gone: true };
     }
