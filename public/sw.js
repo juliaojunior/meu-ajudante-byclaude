@@ -1,4 +1,4 @@
-const CACHE = 'meu-ajudante-v4';
+const CACHE = 'meu-ajudante-v5';
 
 self.addEventListener('push', (e) => {
   let data = { title: 'Meu Ajudante', body: 'Hora do remédio!', tag: 'alarme', url: '/' };
