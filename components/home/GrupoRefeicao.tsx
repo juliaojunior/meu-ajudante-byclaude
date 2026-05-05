@@ -87,7 +87,7 @@ export default function GrupoRefeicao({ group: g, onToggle }: Props) {
             <CardDose
               dose={m}
               acento={g.acento}
-              href={`/remedio/${m.remedioId}`}
+              href={`/remedio?id=${m.remedioId}`}
               onToggle={onToggle ? () => onToggle(m.remedioId, m.h) : undefined}
             />
           </div>

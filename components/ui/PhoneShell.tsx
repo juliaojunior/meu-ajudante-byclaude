@@ -20,6 +20,7 @@ export default function PhoneShell({ children }: { children: React.ReactNode }) 
           overflow: "hidden",
           fontFamily: "var(--font-sans)",
           color: "#1C1917",
+          paddingTop: "env(safe-area-inset-top)",
         }}
       >
         {children}

@@ -246,19 +246,31 @@ export default function Home() {
         )}
       </div>
 
+      {/* Gradiente decorativo — sem captura de eventos */}
       <div
         style={{
           position: "absolute",
           bottom: 0,
           left: 0,
           right: 0,
-          padding: "14px 20px 28px",
+          height: 130,
           background:
             "linear-gradient(to top, #FBF6EE 60%, rgba(251,246,238,0.93) 85%, transparent)",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Botões de ação — container próprio, sem pointer-events manipulado */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: "14px 20px calc(28px + env(safe-area-inset-bottom))",
           display: "flex",
           alignItems: "center",
           gap: 10,
-          pointerEvents: "none",
         }}
       >
         <button
@@ -275,7 +287,6 @@ export default function Home() {
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
-            pointerEvents: "auto",
           }}
         >
           <IcCalendar size={20} stroke={2.2} />
@@ -296,7 +307,6 @@ export default function Home() {
             justifyContent: "center",
             gap: 10,
             boxShadow: "0 10px 24px rgba(194,65,12,0.4), inset 0 1px 0 rgba(255,255,255,0.15)",
-            pointerEvents: "auto",
             textDecoration: "none",
           }}
         >

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import ServiceWorkerRegister from "@/components/ui/ServiceWorkerRegister";
+import InstallPrompt from "@/components/ui/InstallPrompt";
 import TextScaleProvider from "@/contexts/TextScaleProvider";
 import "./globals.css";
 
@@ -48,6 +49,7 @@ export default function RootLayout({
           {children}
         </TextScaleProvider>
         <ServiceWorkerRegister />
+        <InstallPrompt />
       </body>
     </html>
   );

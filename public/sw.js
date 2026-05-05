@@ -1,11 +1,30 @@
-const CACHE = 'meu-ajudante-v2';
+const CACHE = 'meu-ajudante-v4';
+
+self.addEventListener('push', (e) => {
+  let data = { title: 'Meu Ajudante', body: 'Hora do remédio!', tag: 'alarme', url: '/' };
+  try {
+    if (e.data) Object.assign(data, e.data.json());
+  } catch (_) {}
+  e.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/icon',
+      badge: '/icon',
+      tag: data.tag,
+      renotify: true,
+      data: { url: data.url },
+    })
+  );
+});
 
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || self.location.origin;
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
-      if (list.length > 0) return list[0].focus();
-      return clients.openWindow(self.location.origin);
+      const target = list.find((c) => c.url.startsWith(self.location.origin));
+      if (target) return target.focus();
+      return clients.openWindow(url);
     })
   );
 });
@@ -29,6 +48,10 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
+// Note: /_next/static/* assets are cached opportunistically by the cache-first
+// branch below on first successful fetch. This leaves a fresh-install offline
+// gap (assets not yet visited won't be available offline) which the user has
+// accepted for now; enumerating hashed static assets at build time is out of scope.
 self.addEventListener('fetch', (e) => {
   const { request } = e;
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { MedIcon } from "@/components/home/MedIcon";
 import { useTextScale } from "@/contexts/TextScaleProvider";
 import type { DoseMock } from "@/lib/types";
@@ -14,7 +15,9 @@ export default function HeroProximo({ dose, labelGrupo, tempoRestante }: Props) 
   const s = useTextScale();
 
   return (
-    <div
+    <Link
+      href={`/remedio?id=${dose.remedioId}`}
+      aria-label={`Ver detalhes de ${dose.nome}`}
       className="animate-fade-up"
       style={{
         margin: "0 20px 18px",
@@ -25,6 +28,9 @@ export default function HeroProximo({ dose, labelGrupo, tempoRestante }: Props) 
         position: "relative",
         overflow: "hidden",
         flexShrink: 0,
+        display: "block",
+        textDecoration: "none",
+        color: "inherit",
       }}
     >
       <div
@@ -61,41 +67,42 @@ export default function HeroProximo({ dose, labelGrupo, tempoRestante }: Props) 
           Próximo · {tempoRestante}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12 }}>
           <div
             style={{
-              width: 64, height: 64, borderRadius: 20,
+              width: 56, height: 56, borderRadius: 18,
               background: "#fff", border: "1px solid #EADFCE",
               display: "flex", alignItems: "center", justifyContent: "center",
               flexShrink: 0, boxShadow: "0 4px 10px rgba(0,0,0,0.04)",
             }}
           >
-            <MedIcon kind={dose.kind} size={48} />
+            <MedIcon kind={dose.kind} size={40} />
           </div>
 
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
             <span
               style={{
                 fontFamily: "var(--font-serif)",
-                fontSize: Math.round(28 * s),
+                fontSize: Math.round(22 * s),
                 fontWeight: 600, color: "#1C1917",
-                letterSpacing: -0.6, lineHeight: 1, display: "block",
+                letterSpacing: -0.4, lineHeight: 1.15, display: "block",
+                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               }}
             >
               {dose.nome}
             </span>
-            <div style={{ fontSize: Math.round(13 * s), color: "#57534E", marginTop: 4, fontWeight: 500 }}>
+            <div style={{ fontSize: Math.round(12 * s), color: "#57534E", marginTop: 3, fontWeight: 500 }}>
               {dose.dose}
             </div>
           </div>
 
-          <div style={{ textAlign: "right", flexShrink: 0 }}>
+          <div style={{ textAlign: "right", flexShrink: 0, paddingLeft: 6 }}>
             <span
               style={{
                 fontFamily: "var(--font-serif)",
-                fontSize: Math.round(32 * s),
+                fontSize: Math.round(26 * s),
                 fontWeight: 600, color: "#C2410C",
-                letterSpacing: -1, fontVariantNumeric: "tabular-nums",
+                letterSpacing: -0.8, fontVariantNumeric: "tabular-nums",
                 display: "block", lineHeight: 1,
               }}
             >
@@ -107,6 +114,6 @@ export default function HeroProximo({ dose, labelGrupo, tempoRestante }: Props) 
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

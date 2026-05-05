@@ -14,9 +14,17 @@ export function mostrarNotificacao(titulo: string, opcoes?: NotificationOptions)
 }
 
 export function vibrar(): void {
-  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-    navigator.vibrate([200, 100, 200]);
-  }
+  import("@capacitor/haptics").then(({ Haptics }) => {
+    Haptics.vibrate({ duration: 400 }).catch(() => {
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+        navigator.vibrate([200, 100, 200]);
+      }
+    });
+  }).catch(() => {
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+      navigator.vibrate([200, 100, 200]);
+    }
+  });
 }
 
 export function tocarSom(): void {

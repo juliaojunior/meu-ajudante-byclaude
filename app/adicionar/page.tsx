@@ -8,9 +8,11 @@ import PageHeader from "@/components/ui/PageHeader";
 import FormField from "@/components/ui/FormField";
 import Toggle from "@/components/ui/Toggle";
 import { IcCoffee, IcUtensils, IcSun, IcMoon, IcX, IcPlus, IcBell, IcCamera } from "@/components/icons";
-import { saveRemedio, novoId } from "@/lib/storage";
+import { saveRemedio, novoId, getRemedios } from "@/lib/storage";
 import { salvarFoto } from "@/lib/fotos";
+import { ensurePushSubscription, syncSchedules } from "@/lib/push-subscribe";
 import { periodoDeHora } from "@/lib/time";
+import { Capacitor } from "@capacitor/core";
 import type { Horario, MedKind } from "@/lib/types";
 
 const OPCOES_REFEICAO = [
@@ -38,8 +40,27 @@ export default function AdicionarPage() {
   const [para, setPara] = useState("");
   const [kind, setKind] = useState<MedKind>("tab1");
   const [alarme, setAlarme] = useState(true);
+  const [permissaoNegada, setPermissaoNegada] = useState(false);
   const [horarios, setHorarios] = useState<Horario[]>([]);
   const [erro, setErro] = useState("");
+
+  async function toggleAlarme() {
+    if (alarme) {
+      setAlarme(false);
+      setPermissaoNegada(false);
+      return;
+    }
+    if (!Capacitor.isNativePlatform()) {
+      const result = await ensurePushSubscription();
+      if (!result.ok) {
+        setPermissaoNegada(result.reason === "permission-denied");
+      } else {
+        setPermissaoNegada(false);
+        syncSchedules(getRemedios());
+      }
+    }
+    setAlarme(true);
+  }
   const [fotoBlob, setFotoBlob] = useState<Blob | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
   const inputFotoRef = useRef<HTMLInputElement>(null);
@@ -80,6 +101,7 @@ export default function AdicionarPage() {
     if (!nome.trim()) { setErro("Informe o nome do remédio."); return; }
     if (!dose.trim()) { setErro("Informe a dose (ex: 50 mg · 1 comp.)."); return; }
     if (horarios.length === 0) { setErro("Adicione ao menos um horário."); return; }
+    if (horarios.some((h) => parseInt(h.hora.split(":")[1]) % 10 !== 0)) { setErro("Use horários de 10 em 10 minutos (ex: 08h00, 08h10)."); return; }
     setErro("");
 
     const id = novoId();
@@ -97,6 +119,7 @@ export default function AdicionarPage() {
       fotoId: fotoBlob ? id : undefined,
     });
     if (fotoBlob) salvarFoto(id, fotoBlob);
+    syncSchedules(getRemedios());
     router.push("/");
   }
 
@@ -327,6 +350,7 @@ export default function AdicionarPage() {
                       </div>
                       <input
                         type="time"
+                        step={600}
                         value={h.hora}
                         onChange={(e) => updateHora(h.refeicao, e.target.value)}
                         style={{
@@ -430,8 +454,21 @@ export default function AdicionarPage() {
             </div>
             <div style={{ fontSize: 12, color: "#57534E" }}>Som suave + vibração</div>
           </div>
-          <Toggle on={alarme} onClick={() => setAlarme(!alarme)} />
+          <Toggle on={alarme} onClick={toggleAlarme} />
         </div>
+
+        {permissaoNegada && (
+          <div
+            style={{
+              marginTop: 6,
+              fontSize: 13,
+              color: "#78716C",
+              lineHeight: 1.4,
+            }}
+          >
+            Notificações bloqueadas. Para receber lembretes, ative nas configurações do navegador.
+          </div>
+        )}
 
         {/* Mensagem de erro */}
         {erro && (

@@ -1,20 +1,21 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Capacitor } from "@capacitor/core";
 import { getRemedios } from "@/lib/storage";
 import { dataHoje, horaAtual } from "@/lib/time";
-import {
-  pedirPermissao,
-  mostrarNotificacao,
-  vibrar,
-  tocarSom,
-} from "@/lib/notificacoes";
+import { mostrarNotificacao, vibrar, tocarSom } from "@/lib/notificacoes";
+import { pedirPermissaoNativa, reagendarTodosAlarmes } from "@/lib/alarmes-nativos";
 
 export function useAlarme() {
   const disparados = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    pedirPermissao();
+    const isNative = Capacitor.isNativePlatform();
+
+    if (isNative) {
+      pedirPermissaoNativa().then(() => reagendarTodosAlarmes()).catch(() => {});
+    }
 
     function verificar() {
       const agora = horaAtual();
@@ -32,11 +33,13 @@ export function useAlarme() {
           );
           if (jaTomou) continue;
           disparados.current.add(chave);
-          mostrarNotificacao(`Hora do ${rem.nome}`, {
-            body: `${rem.dose} — ${h.refeicao}`,
-            tag: chave,
-            requireInteraction: true,
-          } as NotificationOptions);
+          if (!isNative) {
+            mostrarNotificacao(`Hora do ${rem.nome}`, {
+              body: `${rem.dose} — ${h.refeicao}`,
+              tag: chave,
+              requireInteraction: true,
+            } as NotificationOptions);
+          }
           vibrar();
           tocarSom();
         }

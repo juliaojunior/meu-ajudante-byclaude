@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(npx cap *)",
+      "Bash(python3 *)",
+      "Bash(node -e ' *)",
+      "Bash(npx @capacitor/assets generate --android --androidProject android)",
+      "Bash(xargs grep *)",
+      "Bash(npm list *)"
     ]
   }
 }
