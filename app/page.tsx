@@ -292,6 +292,27 @@ export default function Home() {
           <IcCalendar size={20} stroke={2.2} />
         </button>
         <Link
+          href="/debug"
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            border: "1px solid #EADFCE",
+            background: "#FFFBF3",
+            color: "#57534E",
+            fontWeight: 700,
+            fontSize: 11,
+            fontFamily: "var(--font-sans)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            textDecoration: "none",
+          }}
+        >
+          DBG
+        </Link>
+        <Link
           href="/adicionar"
           style={{
             flex: 1,
