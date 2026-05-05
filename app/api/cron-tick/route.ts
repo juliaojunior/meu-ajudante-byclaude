@@ -32,39 +32,49 @@ export async function POST(request: Request): Promise<Response> {
   const date = `${get("year")}-${get("month")}-${get("day")}`;
   const time = `${get("hour")}:${get("minute")}`;
 
-  const userIds = await getAllUserIds();
+  let userIds: string[];
+  try {
+    userIds = await getAllUserIds();
+  } catch (err) {
+    console.error("[cron-tick] Redis error on getAllUserIds:", err);
+    return Response.json({ error: "redis_unavailable", detail: String(err) }, { status: 500 });
+  }
+
   let processed = 0;
 
   for (const userId of userIds) {
-    const [subscription, schedules] = await Promise.all([
-      getSubscription(userId),
-      getSchedules(userId),
-    ]);
-    if (!subscription) continue;
+    try {
+      const [subscription, schedules] = await Promise.all([
+        getSubscription(userId),
+        getSchedules(userId),
+      ]);
+      if (!subscription) continue;
 
-    const due = schedules.filter((s) => s.horario === time);
-    if (due.length === 0) continue;
+      const due = schedules.filter((s) => s.horario === time);
+      if (due.length === 0) continue;
 
-    for (const schedule of due) {
-      const key = `${date}:${time}:${schedule.remedioId}`;
-      const fresh = await markSent(userId, key);
-      if (!fresh) continue;
+      for (const schedule of due) {
+        const key = `${date}:${time}:${schedule.remedioId}`;
+        const fresh = await markSent(userId, key);
+        if (!fresh) continue;
 
-      const payload = {
-        title: `Hora do ${schedule.nome}`,
-        body: `${schedule.dose} — ${schedule.refeicao}`,
-        tag: key,
-        url: "/",
-      };
+        const payload = {
+          title: `Hora do ${schedule.nome}`,
+          body: `${schedule.dose} — ${schedule.refeicao}`,
+          tag: key,
+          url: "/",
+        };
 
-      const result = await sendPush(subscription, payload);
-      processed += 1;
+        const result = await sendPush(subscription, payload);
+        processed += 1;
 
-      if (result.gone) {
-        await deleteSubscription(userId);
-        // No point looping further for this user — subscription is dead.
-        break;
+        if (result.gone) {
+          await deleteSubscription(userId);
+          break;
+        }
       }
+    } catch (err) {
+      console.error(`[cron-tick] Error processing user ${userId}:`, err);
     }
   }
 
