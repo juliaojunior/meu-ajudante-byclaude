@@ -54,6 +54,7 @@ function RemoverInner() {
 
       {/* Overlay */}
       <div
+        className="animate-fade-in"
         style={{
           position: "absolute", inset: 0,
           background: "rgba(28,25,23,0.55)",
@@ -63,6 +64,7 @@ function RemoverInner() {
         }}
       >
         <div
+          className="animate-slide-up"
           style={{
             width: "100%", background: "#FFFFFF",
             borderRadius: 28, padding: "28px 24px 22px",

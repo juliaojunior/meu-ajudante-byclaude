@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { IcCheck } from "@/components/icons";
 import { MedIcon } from "@/components/home/MedIcon";
@@ -11,10 +12,22 @@ type Props = {
   acento: string;
   href?: string;
   onToggle?: () => void;
+  index?: number;
 };
 
-export default function CardDose({ dose: m, acento, href, onToggle }: Props) {
+export default function CardDose({ dose: m, acento, href, onToggle, index }: Props) {
   const s = useTextScale();
+  const [popActive, setPopActive] = useState(false);
+  const prevTomado = useRef(m.tomado);
+
+  useEffect(() => {
+    if (!prevTomado.current && m.tomado) {
+      setPopActive(true);
+      const t = setTimeout(() => setPopActive(false), 450);
+      return () => clearTimeout(t);
+    }
+    prevTomado.current = m.tomado;
+  }, [m.tomado]);
 
   const content = (
     <>
@@ -68,10 +81,12 @@ export default function CardDose({ dose: m, acento, href, onToggle }: Props) {
     <div
       className="animate-scale-in"
       style={{
+        animationDelay: index !== undefined ? `${Math.min(index, 4) * 55}ms` : undefined,
         background: m.tomado ? "#F8F5EE" : "#FFFBF3",
         border: `1px solid ${m.tomado ? "#E5DCC7" : "#EADFCE"}`,
         borderRadius: 20, display: "flex", alignItems: "center",
         position: "relative", overflow: "hidden",
+        transition: "background 0.35s ease, border-color 0.35s ease",
       }}
     >
       {href ? (
@@ -100,7 +115,7 @@ export default function CardDose({ dose: m, acento, href, onToggle }: Props) {
       <div style={{ padding: "0 14px 0 0", flexShrink: 0 }}>
         <button
           onClick={onToggle}
-          className="check-btn"
+          className={`check-btn${popActive ? " animate-check-pop" : ""}`}
           aria-label={m.tomado ? `Desmarcar ${m.nome}` : `Marcar ${m.nome} como tomado`}
           aria-pressed={m.tomado}
           style={{

@@ -82,13 +82,14 @@ export default function GrupoRefeicao({ group: g, onToggle }: Props) {
         aria-label={`Remédios de ${g.label}`}
         style={{ display: "flex", flexDirection: "column", gap: 8 }}
       >
-        {g.items.map((m) => (
+        {g.items.map((m, idx) => (
           <div key={`${m.remedioId}-${m.h}`} role="listitem">
             <CardDose
               dose={m}
               acento={g.acento}
               href={`/remedio?id=${m.remedioId}`}
               onToggle={onToggle ? () => onToggle(m.remedioId, m.h) : undefined}
+              index={idx}
             />
           </div>
         ))}
