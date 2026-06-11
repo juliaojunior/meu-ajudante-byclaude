@@ -21,10 +21,10 @@ Execute na ordem. Se algum passo falhar, **pare** e reporte o erro com `arquivo:
 ### 1. Build do Next.js (gera `out/`)
 
 ```bash
-npm run build
+npm run build:capacitor
 ```
 
-Capacitor lê do diretório `out/` (configurado em `capacitor.config.ts`). Se o build do Next falhar com erro de TypeScript, reporte o arquivo e linha exatos antes de tentar consertar.
+**IMPORTANTE:** use sempre `build:capacitor`, não `build`. O comando com `BUILD_TARGET=capacitor` ativa `output: "export"` no Next.js, que é o que gera o diretório `out/` estático que o Capacitor precisa. Usar `npm run build` sem essa flag não gera `out/` e silenciosamente omite páginas novas do APK. Capacitor lê de `out/` (configurado em `capacitor.config.ts`). Se o build falhar com erro de TypeScript, reporte o arquivo e linha exatos antes de tentar consertar.
 
 ### 2. Sincronizar com o projeto Android
 

@@ -9,7 +9,8 @@
       "Bash(node -e ' *)",
       "Bash(npx @capacitor/assets generate --android --androidProject android)",
       "Bash(xargs grep *)",
-      "Bash(npm list *)"
+      "Bash(npm list *)",
+      "Bash(./gradlew assembleDebug)"
     ]
   }
 }
