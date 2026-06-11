@@ -74,7 +74,7 @@ export default function Home() {
 
   const [toastKey, setToastKey] = useState(0);
   const [toastVisible, setToastVisible] = useState(false);
-  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   function handleToggle(remedioId: string, hora: string) {
     const dose = doses.find((d) => d.remedioId === remedioId && d.h === hora);
