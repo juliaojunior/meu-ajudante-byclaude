@@ -1,11 +1,12 @@
 "use client";
 
+import { useRef, useState } from "react";
 import Link from "next/link";
 import PhoneShell from "@/components/ui/PhoneShell";
 import HeroProximo from "@/components/home/HeroProximo";
 import ProgressoDia from "@/components/home/ProgressoDia";
 import GrupoRefeicao from "@/components/home/GrupoRefeicao";
-import { IcCalendar, IcPlus } from "@/components/icons";
+import { IcCalendar, IcPlus, IcCheck } from "@/components/icons";
 import { IcCoffee, IcUtensils, IcSun, IcMoon } from "@/components/icons";
 import { useRemedios } from "@/hooks/useRemedios";
 import { useRelogio } from "@/hooks/useRelogio";
@@ -71,6 +72,10 @@ export default function Home() {
     : undefined;
   const streak = calcularStreakGlobal(remedios);
 
+  const [toastKey, setToastKey] = useState(0);
+  const [toastVisible, setToastVisible] = useState(false);
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+
   function handleToggle(remedioId: string, hora: string) {
     const dose = doses.find((d) => d.remedioId === remedioId && d.h === hora);
     if (!dose) return;
@@ -78,6 +83,10 @@ export default function Home() {
       desmarcar(remedioId, hora, hoje);
     } else {
       marcar(remedioId, hora, hoje);
+      setToastVisible(true);
+      setToastKey((k) => k + 1);
+      clearTimeout(toastTimer.current);
+      toastTimer.current = setTimeout(() => setToastVisible(false), 2300);
     }
   }
 
@@ -315,6 +324,41 @@ export default function Home() {
           <span>Adicionar remédio</span>
         </Link>
       </div>
+
+      {toastVisible && (
+        <div
+          key={toastKey}
+          className="animate-toast"
+          role="status"
+          aria-live="polite"
+          style={{
+            position: "absolute",
+            bottom: 108,
+            left: 0,
+            right: 0,
+            margin: "0 auto",
+            width: "fit-content",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            background: "#F1F8EA",
+            border: "1.5px solid #BEF264",
+            color: "#4D7C0F",
+            fontFamily: "var(--font-sans)",
+            fontWeight: 700,
+            fontSize: 15,
+            padding: "10px 20px",
+            borderRadius: 99,
+            boxShadow: "0 4px 16px rgba(77,124,15,0.18)",
+            pointerEvents: "none",
+            zIndex: 50,
+            whiteSpace: "nowrap",
+          }}
+        >
+          <IcCheck size={18} stroke={3} />
+          Dose registrada
+        </div>
+      )}
     </PhoneShell>
   );
 }
