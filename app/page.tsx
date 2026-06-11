@@ -282,8 +282,9 @@ export default function Home() {
           gap: 10,
         }}
       >
-        <button
-          aria-label="Ver calendário"
+        <Link
+          href="/relatorio"
+          aria-label="Ver relatório"
           style={{
             width: 56,
             height: 56,
@@ -291,15 +292,15 @@ export default function Home() {
             border: "1px solid #EADFCE",
             background: "#FFFBF3",
             color: "#1C1917",
-            cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
+            textDecoration: "none",
           }}
         >
           <IcCalendar size={20} stroke={2.2} />
-        </button>
+        </Link>
 
         <Link
           href="/adicionar"

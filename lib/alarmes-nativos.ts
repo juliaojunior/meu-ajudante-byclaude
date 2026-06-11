@@ -3,6 +3,8 @@ import { LocalNotifications } from "@capacitor/local-notifications";
 import { getRemedios } from "./storage";
 import type { Remedio } from "./types";
 
+const CANAL_ALARMES = "alarmes_remedio";
+
 function notifId(remedioId: string, hora: string): number {
   const str = `${remedioId}|${hora}`;
   let hash = 0;
@@ -19,6 +21,22 @@ export async function pedirPermissaoNativa(): Promise<boolean> {
   return display === "granted";
 }
 
+export async function criarCanalAlarmes(): Promise<void> {
+  if (Capacitor.getPlatform() !== "android") return;
+  // Configurações de canal são fixadas pelo Android na primeira criação;
+  // mudar som/importância depois exige um novo id de canal.
+  await LocalNotifications.createChannel({
+    id: CANAL_ALARMES,
+    name: "Alarmes de remédio",
+    description: "Avisos na hora de tomar cada remédio",
+    importance: 5,
+    sound: "alarme.wav",
+    vibration: true,
+    visibility: 1,
+    lights: true,
+  });
+}
+
 export async function reagendarAlarmes(remedio: Remedio): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
 
@@ -33,6 +51,8 @@ export async function reagendarAlarmes(remedio: Remedio): Promise<void> {
     const [hour, minute] = h.hora.split(":").map(Number);
     return {
       id: notifId(remedio.id, h.hora),
+      channelId: CANAL_ALARMES,
+      sound: "alarme.wav",
       title: `Hora do ${remedio.apelido || remedio.nome}`,
       body: `${remedio.dose} — ${h.refeicao}`,
       schedule: {

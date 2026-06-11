@@ -5,7 +5,7 @@ import { Capacitor } from "@capacitor/core";
 import { getRemedios } from "@/lib/storage";
 import { dataHoje, horaAtual } from "@/lib/time";
 import { mostrarNotificacao, vibrar, tocarSom } from "@/lib/notificacoes";
-import { pedirPermissaoNativa, reagendarTodosAlarmes } from "@/lib/alarmes-nativos";
+import { criarCanalAlarmes, pedirPermissaoNativa, reagendarTodosAlarmes } from "@/lib/alarmes-nativos";
 
 export function useAlarme() {
   const disparados = useRef<Set<string>>(new Set());
@@ -14,7 +14,10 @@ export function useAlarme() {
     const isNative = Capacitor.isNativePlatform();
 
     if (isNative) {
-      pedirPermissaoNativa().then(() => reagendarTodosAlarmes()).catch(() => {});
+      pedirPermissaoNativa()
+        .then(() => criarCanalAlarmes())
+        .then(() => reagendarTodosAlarmes())
+        .catch(() => {});
     }
 
     function verificar() {
