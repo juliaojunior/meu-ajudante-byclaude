@@ -11,6 +11,7 @@ import { IcCoffee, IcUtensils, IcSun, IcMoon, IcX, IcPlus, IcBell, IcCamera } fr
 import { saveRemedio, novoId, getRemedios } from "@/lib/storage";
 import { salvarFoto } from "@/lib/fotos";
 import { ensurePushSubscription, syncSchedules } from "@/lib/push-subscribe";
+import { sincronizarAlarmes } from "@/lib/alarmes-nativos";
 import { periodoDeHora } from "@/lib/time";
 import { Capacitor } from "@capacitor/core";
 import type { Horario, MedKind } from "@/lib/types";
@@ -119,6 +120,7 @@ export default function AdicionarPage() {
       fotoId: fotoBlob ? id : undefined,
     });
     if (fotoBlob) salvarFoto(id, fotoBlob);
+    sincronizarAlarmes().catch(() => {});
     syncSchedules(getRemedios());
     router.push("/");
   }

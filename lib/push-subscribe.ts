@@ -1,3 +1,4 @@
+import { Capacitor } from "@capacitor/core";
 import { pedirPermissao } from "./notificacoes";
 import type { Remedio } from "./types";
 
@@ -46,6 +47,11 @@ export function getUserId(): string {
 export async function ensurePushSubscription(): Promise<EnsureResult> {
   if (typeof window === "undefined") {
     return { ok: false, reason: "unsupported" };
+  }
+  // No nativo o alarme é do sistema (AlarmManager); web push é só da versão web.
+  // Sem este guard, navigator.serviceWorker.ready ficaria pendente para sempre.
+  if (Capacitor.isNativePlatform()) {
+    return { ok: false, reason: "native" };
   }
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
     return { ok: false, reason: "unsupported" };
@@ -120,6 +126,7 @@ export async function syncSchedules(
 }
 
 export async function unsubscribePush(): Promise<void> {
+  if (Capacitor.isNativePlatform()) return;
   try {
     await fetch("/api/unsubscribe", {
       method: "POST",

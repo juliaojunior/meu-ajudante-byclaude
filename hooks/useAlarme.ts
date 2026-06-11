@@ -5,7 +5,7 @@ import { Capacitor } from "@capacitor/core";
 import { getRemedios } from "@/lib/storage";
 import { dataHoje, horaAtual } from "@/lib/time";
 import { mostrarNotificacao, vibrar, tocarSom } from "@/lib/notificacoes";
-import { criarCanalAlarmes, pedirPermissaoNativa, reagendarTodosAlarmes } from "@/lib/alarmes-nativos";
+import { pedirPermissaoNativa, sincronizarAlarmes } from "@/lib/alarmes-nativos";
 
 export function useAlarme() {
   const disparados = useRef<Set<string>>(new Set());
@@ -14,12 +14,15 @@ export function useAlarme() {
     const isNative = Capacitor.isNativePlatform();
 
     if (isNative) {
+      // No nativo o despertador é 100% do sistema (AlarmManager + tela cheia):
+      // só garante permissão e sincroniza o agendamento
       pedirPermissaoNativa()
-        .then(() => criarCanalAlarmes())
-        .then(() => reagendarTodosAlarmes())
+        .then(() => sincronizarAlarmes())
         .catch(() => {});
+      return;
     }
 
+    // Web: verificação em primeiro plano + notificação do navegador
     function verificar() {
       const agora = horaAtual();
       const hoje = dataHoje();
@@ -36,13 +39,11 @@ export function useAlarme() {
           );
           if (jaTomou) continue;
           disparados.current.add(chave);
-          if (!isNative) {
-            mostrarNotificacao(`Hora do ${rem.nome}`, {
-              body: `${rem.dose} — ${h.refeicao}`,
-              tag: chave,
-              requireInteraction: true,
-            } as NotificationOptions);
-          }
+          mostrarNotificacao(`Hora do ${rem.nome}`, {
+            body: `${rem.dose} — ${h.refeicao}`,
+            tag: chave,
+            requireInteraction: true,
+          } as NotificationOptions);
           vibrar();
           tocarSom();
         }

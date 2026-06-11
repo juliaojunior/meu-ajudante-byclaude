@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FBF6EE"
+    android:padding="28dp"
+    android:gravity="center_horizontal">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.8" />
+
+    <TextView
+        android:id="@+id/txt_refeicao"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#C2410C"
+        android:letterSpacing="0.15" />
+
+    <TextView
+        android:id="@+id/txt_hora"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="76sp"
+        android:textStyle="bold"
+        android:textColor="#1C1917" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hora do remédio"
+        android:textSize="20sp"
+        android:textColor="#57534E"
+        android:layout_marginTop="4dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:fillViewport="false">
+
+        <LinearLayout
+            android:id="@+id/lista_remedios"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/btn_tomei"
+        android:layout_width="match_parent"
+        android:layout_height="92dp"
+        android:text="✓  Já tomei"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:textAllCaps="false"
+        android:background="@drawable/btn_verde"
+        android:stateListAnimator="@null" />
+
+    <Button
+        android:id="@+id/btn_adiar"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginTop="14dp"
+        android:text="Adiar 10 minutos"
+        android:textSize="18sp"
+        android:textColor="#57534E"
+        android:textAllCaps="false"
+        android:background="@drawable/btn_contorno"
+        android:stateListAnimator="@null" />
+
+</LinearLayout>

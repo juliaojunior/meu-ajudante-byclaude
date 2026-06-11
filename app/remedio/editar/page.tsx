@@ -11,7 +11,7 @@ import { IcCoffee, IcUtensils, IcSun, IcMoon, IcX, IcPlus, IcBell, IcCamera } fr
 import { getRemedio, saveRemedio, getRemedios } from "@/lib/storage";
 import { salvarFoto } from "@/lib/fotos";
 import { ensurePushSubscription, syncSchedules } from "@/lib/push-subscribe";
-import { cancelarAlarmes, reagendarAlarmes } from "@/lib/alarmes-nativos";
+import { sincronizarAlarmes } from "@/lib/alarmes-nativos";
 import { useFoto } from "@/hooks/useFoto";
 import { periodoDeHora } from "@/lib/time";
 import { Capacitor } from "@capacitor/core";
@@ -132,11 +132,10 @@ function EditarInner() {
       horarios: [...horarios].sort((a, b) => a.hora.localeCompare(b.hora)),
       fotoId: novaFotoId,
     };
-    // Cancela alarmes dos horários antigos antes de salvar os novos
-    await cancelarAlarmes(remedio).catch(() => {});
     saveRemedio(updatedRemedio);
     if (fotoBlob) await salvarFoto(remedio.id, fotoBlob);
-    await reagendarAlarmes(updatedRemedio).catch(() => {});
+    // Sincronização total: cancela tudo no nativo e reagenda do zero
+    await sincronizarAlarmes().catch(() => {});
     syncSchedules(getRemedios());
     router.push(`/remedio?id=${id}`);
   }

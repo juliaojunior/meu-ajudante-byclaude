@@ -8,7 +8,7 @@ import { IcAlert } from "@/components/icons";
 import { getRemedio, deleteRemedio, getRemedios } from "@/lib/storage";
 import { deletarFoto } from "@/lib/fotos";
 import { syncSchedules } from "@/lib/push-subscribe";
-import { cancelarAlarmes } from "@/lib/alarmes-nativos";
+import { sincronizarAlarmes } from "@/lib/alarmes-nativos";
 import { calcularStreak } from "@/lib/streak";
 import type { Remedio } from "@/lib/types";
 
@@ -31,8 +31,9 @@ function RemoverInner() {
 
   async function confirmarRemocao() {
     if (remedio?.fotoId) deletarFoto(remedio.fotoId);
-    if (remedio) await cancelarAlarmes(remedio).catch(() => {});
     deleteRemedio(id);
+    // Sincronização total: o nativo cancela tudo e reagenda só o que restou
+    await sincronizarAlarmes().catch(() => {});
     syncSchedules(getRemedios());
     router.replace("/");
   }
