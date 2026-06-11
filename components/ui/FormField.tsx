@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 type Props = {
   label: string;
   value: string;
@@ -17,6 +19,8 @@ export default function FormField({
   placeholder,
   type = "text",
 }: Props) {
+  const id = useId();
+
   const baseStyle: React.CSSProperties = {
     padding: "14px 16px",
     background: "#FFFBF3",
@@ -29,24 +33,26 @@ export default function FormField({
     letterSpacing: big ? -0.3 : 0,
     width: "100%",
     boxSizing: "border-box" as const,
-    outline: "none",
+    minHeight: 52,
   };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 5, ...style }}>
-      <div
+      <label
+        htmlFor={id}
         style={{
           fontSize: 12,
           fontWeight: 700,
           color: "#57534E",
-          textTransform: "uppercase",
+          textTransform: "uppercase" as const,
           letterSpacing: 1,
         }}
       >
         {label}
-      </div>
+      </label>
       {onChange ? (
         <input
+          id={id}
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}

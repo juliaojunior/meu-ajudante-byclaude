@@ -204,8 +204,9 @@ export default function AdicionarPage() {
               onClick={() => inputFotoRef.current?.click()}
               style={{
                 marginTop: 10,
-                padding: "8px 16px",
-                borderRadius: 20,
+                padding: "10px 18px",
+                minHeight: 44,
+                borderRadius: 22,
                 border: "none",
                 background: "#C2410C",
                 color: "#fff",
@@ -275,8 +276,10 @@ export default function AdicionarPage() {
               <button
                 key={k}
                 onClick={() => setKind(k)}
+                aria-pressed={kind === k}
                 style={{
-                  padding: "8px 14px",
+                  padding: "11px 14px",
+                  minHeight: 44,
                   borderRadius: 12,
                   border: kind === k ? "2px solid #C2410C" : "1px solid #EADFCE",
                   background: kind === k ? "#FFF1E7" : "#FFFBF3",
@@ -369,10 +372,11 @@ export default function AdicionarPage() {
                     </div>
                     <button
                       onClick={() => removeHorario(h.refeicao)}
+                      aria-label={`Remover ${h.refeicao}`}
                       style={{
-                        width: 34,
-                        height: 34,
-                        borderRadius: 17,
+                        width: 44,
+                        height: 44,
+                        borderRadius: 22,
                         background: "transparent",
                         border: "1px solid #EADFCE",
                         color: "#57534E",
@@ -380,6 +384,7 @@ export default function AdicionarPage() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        flexShrink: 0,
                       }}
                     >
                       <IcX size={16} stroke={2.3} />
@@ -399,7 +404,8 @@ export default function AdicionarPage() {
                 key={opcao.refeicao}
                 onClick={() => addHorario(opcao)}
                 style={{
-                  padding: "10px 14px",
+                  padding: "12px 16px",
+                  minHeight: 44,
                   borderRadius: 14,
                   border: "1.5px dashed #D6C6AA",
                   background: "transparent",

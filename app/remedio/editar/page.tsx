@@ -194,7 +194,7 @@ function EditarInner() {
             <button
               onClick={() => inputFotoRef.current?.click()}
               style={{
-                marginTop: 10, padding: "8px 16px", borderRadius: 20,
+                marginTop: 10, padding: "10px 18px", minHeight: 44, borderRadius: 22,
                 border: "none", background: "#C2410C", color: "#fff",
                 fontWeight: 700, fontSize: 13, cursor: "pointer",
                 fontFamily: "var(--font-sans)",
@@ -229,8 +229,9 @@ function EditarInner() {
               <button
                 key={k}
                 onClick={() => setKind(k)}
+                aria-pressed={kind === k}
                 style={{
-                  padding: "8px 14px", borderRadius: 12,
+                  padding: "11px 14px", minHeight: 44, borderRadius: 12,
                   border: kind === k ? "2px solid #C2410C" : "1px solid #EADFCE",
                   background: kind === k ? "#FFF1E7" : "#FFFBF3",
                   color: kind === k ? "#C2410C" : "#57534E",
@@ -295,11 +296,13 @@ function EditarInner() {
                     />
                     <button
                       onClick={() => removeHorario(h.refeicao)}
+                      aria-label={`Remover ${h.refeicao}`}
                       style={{
-                        width: 34, height: 34, borderRadius: 17,
+                        width: 44, height: 44, borderRadius: 22,
                         background: "transparent", border: "1px solid #EADFCE",
                         color: "#57534E", cursor: "pointer",
                         display: "flex", alignItems: "center", justifyContent: "center",
+                        flexShrink: 0,
                       }}
                     >
                       <IcX size={16} stroke={2.3} />
@@ -318,7 +321,7 @@ function EditarInner() {
                 key={opcao.refeicao}
                 onClick={() => addHorario(opcao)}
                 style={{
-                  padding: "10px 14px", borderRadius: 14,
+                  padding: "12px 16px", minHeight: 44, borderRadius: 14,
                   border: "1.5px dashed #D6C6AA", background: "transparent",
                   color: "#C2410C", fontWeight: 600, fontSize: 14,
                   cursor: "pointer", fontFamily: "var(--font-sans)",

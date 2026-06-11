@@ -117,6 +117,13 @@ body {
   border-radius: 6px;
 }
 
+/* Inputs de texto: borda terracota no foco via teclado */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  border-color: #C2410C !important;
+}
+
 /* Remove outline nativo nos botões com estilo próprio */
 button:focus:not(:focus-visible),
 a:focus:not(:focus-visible) {
