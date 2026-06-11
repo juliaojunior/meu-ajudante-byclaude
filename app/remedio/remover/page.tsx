@@ -8,6 +8,7 @@ import { IcAlert } from "@/components/icons";
 import { getRemedio, deleteRemedio, getRemedios } from "@/lib/storage";
 import { deletarFoto } from "@/lib/fotos";
 import { syncSchedules } from "@/lib/push-subscribe";
+import { cancelarAlarmes } from "@/lib/alarmes-nativos";
 import { calcularStreak } from "@/lib/streak";
 import type { Remedio } from "@/lib/types";
 
@@ -28,8 +29,9 @@ function RemoverInner() {
 
   const streak = calcularStreak(remedio);
 
-  function confirmarRemocao() {
+  async function confirmarRemocao() {
     if (remedio?.fotoId) deletarFoto(remedio.fotoId);
+    if (remedio) await cancelarAlarmes(remedio).catch(() => {});
     deleteRemedio(id);
     syncSchedules(getRemedios());
     router.replace("/");

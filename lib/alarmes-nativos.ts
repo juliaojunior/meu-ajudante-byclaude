@@ -78,6 +78,12 @@ export async function cancelarAlarmes(remedio: Remedio): Promise<void> {
 
 export async function reagendarTodosAlarmes(): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
+  // Cancela tudo antes de reagendar para limpar alarmes fantasma
+  // (horários alterados ou remédios removidos fora do fluxo normal)
+  const { notifications: pending } = await LocalNotifications.getPending().catch(() => ({ notifications: [] as { id: number }[] }));
+  if (pending.length > 0) {
+    await LocalNotifications.cancel({ notifications: pending.map((n) => ({ id: n.id })) }).catch(() => {});
+  }
   const remedios = getRemedios();
   for (const rem of remedios) {
     await reagendarAlarmes(rem);

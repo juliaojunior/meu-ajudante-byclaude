@@ -37,10 +37,12 @@ function calcDayStatus(
   hoje: string,
   remedios: Remedio[]
 ): DayStatus {
-  const totalExpected = remedios.reduce((s, r) => s + r.horarios.length, 0);
+  // Só conta remédios que já existiam neste dia
+  const ativos = remedios.filter((r) => r.criadoEm.slice(0, 10) <= dateStr);
+  const totalExpected = ativos.reduce((s, r) => s + r.horarios.length, 0);
   if (totalExpected === 0) return "empty";
 
-  const totalTaken = remedios.reduce(
+  const totalTaken = ativos.reduce(
     (s, r) => s + r.tomadas.filter((t) => t.data === dateStr).length,
     0
   );
@@ -86,15 +88,16 @@ export default function RelatorioPage() {
   const streak = calcularStreakGlobal(remedios);
 
   const { monthCompliance, totalEver } = useMemo(() => {
-    const totalPerDay = remedios.reduce((s, r) => s + r.horarios.length, 0);
     let expectedPast = 0;
     let takenPast = 0;
 
     for (let d = 1; d <= daysInMonth; d++) {
       const ds = toDateStr(year, month, d);
       if (ds > hoje) break;
-      expectedPast += totalPerDay;
-      takenPast += remedios.reduce(
+      const ativos = remedios.filter((r) => r.criadoEm.slice(0, 10) <= ds);
+      if (ativos.length === 0) continue;
+      expectedPast += ativos.reduce((s, r) => s + r.horarios.length, 0);
+      takenPast += ativos.reduce(
         (s, r) => s + r.tomadas.filter((t) => t.data === ds).length,
         0
       );
@@ -269,11 +272,13 @@ export default function RelatorioPage() {
             {remedios.map((r) => {
               const s = calcularStreak(r);
               const totalPerDay = r.horarios.length;
+              const criadoEm = r.criadoEm.slice(0, 10);
               let exp = 0;
               let tak = 0;
               for (let d = 1; d <= daysInMonth; d++) {
                 const ds = toDateStr(year, month, d);
                 if (ds > hoje) break;
+                if (ds < criadoEm) continue;
                 exp += totalPerDay;
                 tak += r.tomadas.filter((t) => t.data === ds).length;
               }
